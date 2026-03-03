@@ -37,7 +37,7 @@ bun run dev          # watch mode
 ```
 
 The server starts on **http://localhost:3000**.  
-Swagger UI is available at **http://localhost:3000/swagger**.
+Swagger UI is available at **http://localhost:3000/api/docs**.
 
 ## REST API
 

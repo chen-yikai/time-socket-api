@@ -21,6 +21,7 @@ function broadcast(event: string, payload: unknown) {
 const app = new Elysia()
   .use(
     swagger({
+      path: "/api/docs",
       documentation: {
         info: {
           title: "Realtime Countdown API",
@@ -160,4 +161,4 @@ const app = new Elysia()
   .listen(3000);
 
 console.log(`🦊 Realtime Countdown API running at http://localhost:${app.server?.port}`);
-console.log(`📖 API docs available at http://localhost:${app.server?.port}/swagger`);
+console.log(`📖 API docs available at http://localhost:${app.server?.port}/api/docs`);
