@@ -185,29 +185,67 @@ async function createCountdown(event) {
   }
 }
 
+function toLocalDateTimeValue(iso) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const offset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+}
+
 async function editCountdown(countdown) {
-  const nextTitle = prompt("New title", countdown.title);
-  if (nextTitle === null) return;
+  const dialog = document.createElement("dialog");
+  dialog.innerHTML = `
+    <form method="dialog" class="form">
+      <h3>Edit Countdown</h3>
+      <label>
+        Title
+        <input type="text" name="title" value="${countdown.title.replace(/"/g, '&quot;')}" required minlength="1" />
+      </label>
+      <label>
+        Target Time
+        <input type="datetime-local" name="targetTime" value="${toLocalDateTimeValue(countdown.targetTime)}" required />
+      </label>
+      <div class="actions">
+        <button type="submit">Save</button>
+        <button type="button" class="cancel">Cancel</button>
+      </div>
+    </form>
+  `;
+  document.body.append(dialog);
+  dialog.showModal();
 
-  const nextTarget = prompt(
-    "New target time (ISO 8601)",
-    countdown.targetTime
-  );
-  if (nextTarget === null) return;
+  dialog.querySelector(".cancel").addEventListener("click", () => dialog.close());
 
-  try {
-    await request(`/countdowns/${countdown.id}`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        title: nextTitle.trim(),
-        targetTime: nextTarget.trim(),
-      }),
-    });
-    setStatus("Countdown updated");
-    await refreshCountdowns();
-  } catch (error) {
-    setStatus(error.message, true);
-  }
+  dialog.addEventListener("close", async () => {
+    dialog.remove();
+    if (dialog.returnValue !== "submit") return;
+
+    const form = dialog.querySelector("form");
+    const formData = new FormData(form);
+    const nextTitle = String(formData.get("title") ?? "").trim();
+    const nextTargetInput = String(formData.get("targetTime") ?? "");
+
+    if (!nextTitle || !nextTargetInput) return;
+
+    try {
+      await request(`/countdowns/${countdown.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          title: nextTitle,
+          targetTime: toIsoFromLocal(nextTargetInput),
+        }),
+      });
+      setStatus("Countdown updated");
+      await refreshCountdowns();
+    } catch (error) {
+      setStatus(error.message, true);
+    }
+  });
+
+  dialog.querySelector("form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    dialog.close("submit");
+  });
 }
 
 async function removeCountdown(id) {

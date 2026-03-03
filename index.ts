@@ -61,6 +61,7 @@ const api = new Elysia({ prefix: "/api" })
     swagger({
       path: "/docs",
       provider: "swagger-ui",
+      exclude: [/^\/api\/docs/],
       documentation: {
         info: {
           title: "Realtime Countdown API",
@@ -255,8 +256,8 @@ const socket = new Elysia({ prefix: "/ws", detail: { hide: true } })
 const app = new Elysia()
   .use(api)
   .use(socket)
-  .use(staticPlugin({ assets: "public", prefix: "/" }))
-  .get("/", () => Bun.file("public/index.html"))
+  .use(staticPlugin({ assets: "public", prefix: "/", detail: { hide: true } }))
+  .get("/", () => Bun.file("public/index.html"), { detail: { hide: true } })
   .listen(process.env.PORT ? Number(process.env.PORT) : 3000);
 
 console.log(

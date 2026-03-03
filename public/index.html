@@ -170,5 +170,32 @@
         text-decoration: underline;
       }
     }
+
+    dialog {
+      border: 1px solid color-mix(in oklab, CanvasText 20%, Canvas);
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 400px;
+      width: 90vw;
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    dialog h3 {
+      margin: 0 0 16px;
+    }
+
+    dialog .form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    dialog .actions {
+      margin-top: 8px;
+      justify-content: flex-end;
+    }
   </style>
 </html>
