@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Realtime Countdown</title>
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <h1>Realtime Countdown</h1>
+        <p class="hint">
+          SwaggerUI available at
+          <a href="/api/docs" target="_blank" rel="noreferrer">/api/docs</a>
+        </p>
+      </header>
+
+      <section class="panel">
+        <h2>Create Countdown</h2>
+        <form id="create-form" class="form">
+          <label>
+            Title
+            <input id="title" name="title" type="text" required minlength="1" />
+          </label>
+          <label>
+            Target Time
+            <input
+              id="targetTime"
+              name="targetTime"
+              type="datetime-local"
+              required
+            />
+          </label>
+          <button type="submit">Create</button>
+        </form>
+        <p id="status" class="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Countdowns</h2>
+        <div id="countdowns" class="countdowns"></div>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+  <style>
+    :root {
+      /* color-scheme: light dark; */
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel {
+      border: 1px solid color-mix(in oklab, CanvasText 20%, Canvas);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .form {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 0.95rem;
+    }
+
+    input,
+    button {
+      font: inherit;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid color-mix(in oklab, CanvasText 25%, Canvas);
+      background: Canvas;
+      color: CanvasText;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .status {
+      min-height: 20px;
+      margin: 12px 0 0;
+      font-size: 0.9rem;
+    }
+
+    .countdowns {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid color-mix(in oklab, CanvasText 20%, Canvas);
+      border-radius: 10px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .time {
+      font-variant-numeric: tabular-nums;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .meta {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 700px) {
+      .form {
+        grid-template-columns: 1fr;
+      }
+
+      .header{
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    .hint {
+      background: #00a2ff37;
+      color: #000;
+      border-radius: 50px;
+      padding: 0.3rem 0.8rem;
+      a {
+        color: inherit;
+        text-decoration: underline;
+      }
+    }
+  </style>
+</html>
