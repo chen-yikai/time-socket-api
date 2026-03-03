@@ -257,7 +257,7 @@ const app = new Elysia()
   .use(socket)
   .use(staticPlugin({ assets: "public", prefix: "/" }))
   .get("/", () => Bun.file("public/index.html"))
-  .listen(3000);
+  .listen(process.env.PORT ? Number(process.env.PORT) : 3000);
 
 console.log(
   `Live countdown socket running at http://localhost:${app.server?.port}/ws/countdowns/:id`
