@@ -7,6 +7,7 @@ type Countdown = {
   title: string;
   targetTime: string;
   createdAt: string;
+  updatedAt: string;
 };
 
 type CountdownParts = {
@@ -61,7 +62,7 @@ const api = new Elysia({ prefix: "/api" })
     swagger({
       path: "/docs",
       provider: "swagger-ui",
-      exclude: [/^\/api\/docs/],
+      exclude: [/^\/api\/docs/, /^(?!\/api)/],
       documentation: {
         info: {
           title: "Realtime Countdown API",
@@ -74,13 +75,64 @@ const api = new Elysia({ prefix: "/api" })
       },
     })
   )
-  .get("/countdowns", () => Array.from(countdowns.values()), {
-    detail: {
-      tags: ["Countdown"],
-      summary: "List all countdowns",
-      description: "Returns a list of all existing countdowns.",
+  .get(
+    "/countdowns",
+    ({ query }) => {
+      let items = Array.from(countdowns.values());
+
+      if (query.search) {
+        const search = query.search.toLowerCase();
+        items = items.filter((c) => c.title.toLowerCase().includes(search));
+      }
+
+      const sortField = query.sort ?? "createdAt";
+      const order = query.orderBy ?? "asc";
+
+      items.sort((a, b) => {
+        const aVal = a[sortField as keyof Countdown];
+        const bVal = b[sortField as keyof Countdown];
+        const cmp = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+        return order === "desc" ? -cmp : cmp;
+      });
+
+      return items;
     },
-  })
+    {
+      query: t.Object({
+        search: t.Optional(t.String()),
+        sort: t.Optional(t.String()),
+        orderBy: t.Optional(t.String()),
+      }),
+      detail: {
+        tags: ["Countdown"],
+        summary: "List all countdowns",
+        description: "Returns a list of all existing countdowns. Supports filtering by title and sorting.",
+        parameters: [
+          {
+            name: "search",
+            in: "query",
+            description: "Filter countdowns by title (case-insensitive)",
+            schema: { type: "string" },
+          },
+          {
+            name: "sort",
+            in: "query",
+            description: "Field to sort by (default: createdAt)",
+            schema: {
+              type: "string",
+              enum: ["title", "createdAt", "updatedAt", "targetTime"],
+            },
+          },
+          {
+            name: "orderBy",
+            in: "query",
+            description: "Sort direction (default: asc)",
+            schema: { type: "string", enum: ["asc", "desc"] },
+          },
+        ],
+      },
+    }
+  )
   .get(
     "/countdowns/:id",
     ({ params: { id } }) => {
@@ -106,6 +158,7 @@ const api = new Elysia({ prefix: "/api" })
         title: body.title,
         targetTime: body.targetTime,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       countdowns.set(id, countdown);
       broadcast("created", countdown);
@@ -142,6 +195,7 @@ const api = new Elysia({ prefix: "/api" })
         ...(body.targetTime !== undefined
           ? { targetTime: body.targetTime }
           : {}),
+        updatedAt: new Date().toISOString(),
       };
       countdowns.set(id, updated);
       broadcast("updated", updated);
@@ -256,7 +310,7 @@ const socket = new Elysia({ prefix: "/ws", detail: { hide: true } })
 const app = new Elysia()
   .use(api)
   .use(socket)
-  .use(staticPlugin({ assets: "public", prefix: "/", detail: { hide: true } }))
+  .use(staticPlugin({ assets: "public", prefix: "/" }))
   .get("/", () => Bun.file("public/index.html"), { detail: { hide: true } })
   .listen(process.env.PORT ? Number(process.env.PORT) : 3000);
 
